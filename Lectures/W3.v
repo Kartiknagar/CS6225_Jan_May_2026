@@ -180,6 +180,7 @@ Fixpoint repeat (X: Type) (n : X) (count : nat) : list X :=
   | O => nil X
   | S count' => cons X n (repeat X n count')
   end.
+
   
 Compute (repeat nat 2 4).
 
@@ -218,7 +219,7 @@ Fixpoint repeat' X x count :=
   
 Check repeat'.
 
-(** We can also make the type arguments to constructors
+(** We can make the type arguments to constructors
 and functions implicit: *)
 
 Arguments nil {X}.
@@ -244,7 +245,20 @@ Fixpoint app {X : Type} (l1 l2 : list X) : list X :=
   | cons h t => cons h (app t l2)
   end.
 
-Fail Definition mynil := nil.
+
+Fixpoint length {X : Type} (l : list X) : nat :=
+  match l with
+  | nil => 0
+  | cons h t => S (length t)
+  end.
+
+Fixpoint rev {X : Type} (l : list X) : list X :=
+  match l with
+  | nil => nil
+  | cons h t => app (rev t) (cons h nil)
+  end.
+
+Fail Definition mynil := nil. 
 
 
 Notation "x :: y" := (cons x y)
@@ -268,6 +282,7 @@ Inductive option (X : Type) :=
 | None.
 
 Arguments Some {X}.
+Arguments None {X}.
 
 Compute (Some 5).
 
@@ -289,7 +304,72 @@ Fixpoint filter {X:Type} (test: X -> bool) (l : list X) :=
 
 Compute (filter even [1;2;3;4]).
 
-(** Compute (filter (fun l => (length l) =? 1) [ [1;2]; [2]; [3;4] ]).*)
+(**
+Anonymous functions (fun expressions)
+*)
+Compute (filter (fun l => (length l) =? 1) [ [1;2]; [2]; [3;4] ]).
+
+Fixpoint map {X Y: Type} (f: X -> Y) (l: list X) : list Y :=
+  match l with
+  | [] => []
+  | h :: t => (f h) :: (map f t)
+  end.
+
+Compute (map (fun n => n + 1) [1;2;3]).
+
+
+Theorem map_rev_try : forall (X Y: Type) (f: X -> Y) (l: list X),
+  map f (rev l) = rev (map f l).
+Proof.
+  intros X Y f l. induction l as [| h t IHt].
+  - reflexivity.
+- simpl. rewrite <- IHt. Abort.
+
+Theorem map_app_one : forall (X Y: Type) (f: X -> Y) (l : list X) (n : X),
+  map f (l ++ [n]) = (map f l) ++ [f n].
+Proof.
+  intros X Y f l n. induction l as [| h t IHt].
+  - reflexivity.
+  - simpl. rewrite IHt. reflexivity.
+Qed.
+
+Theorem map_rev : forall (X Y: Type) (f: X -> Y) (l: list X),
+  map f (rev l) = rev (map f l).
+Proof.
+  intros X Y f l. induction l as [| h t IHt].
+  - reflexivity.
+- simpl. rewrite <- IHt. rewrite map_app_one. reflexivity.
+Qed.
+
+Fixpoint fold {X Y: Type} (f: X -> Y -> Y) (l: list X) (b: Y) : Y :=
+  match l with
+  | [] => b
+  | h :: t => f h (fold f t b)
+  end.
+
+Compute (fold (fun x y => x + y) [1;2;3;4] 0).
+
+Compute (fold app  [[1];[];[2;3];[4]] [] ).
+
+(**
+Functions that return functions
+*)
+
+Definition constfun {X: Type} (x: X) : nat -> X :=
+  fun (k:nat) => x.
+
+Definition ftrue := constfun true.
+Compute (ftrue 0).
+Compute (ftrue 1).
+
+(** In fact, the multiple-argument functions we have already seen are also examples of passing functions as data. *)
+
+Check plus.
+
+Definition plus3 := plus 3.
+Compute (plus3 4).
+
+
 
 
 
