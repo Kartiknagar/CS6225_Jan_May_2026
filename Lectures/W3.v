@@ -1,3 +1,8 @@
+(**
+Lists, Polymorphism
+Ref: Software Foundations Vol.1, Lists.v, Poly.v
+*)
+
 From LECTURES Require Export W2.
 
 Module NatList.
@@ -362,12 +367,49 @@ Definition ftrue := constfun true.
 Compute (ftrue 0).
 Compute (ftrue 1).
 
-(** In fact, the multiple-argument functions we have already seen are also examples of passing functions as data. *)
+(** In fact, the multiple-argument functions we have already
+ seen are also examples of passing functions as data. *)
 
 Check plus.
 
 Definition plus3 := plus 3.
 Compute (plus3 4).
+
+Require Import String.
+
+(**
+The map data structure can also be defined as a function
+*)
+
+
+Definition map_struct : Type := string -> nat.
+
+Definition lookup (m:map_struct) (s:string) : nat := m s.
+
+Definition empty : map_struct := fun s => 0.
+
+Definition update (m:map_struct) (s:string) (x:nat) : map_struct :=
+  fun s' => if (String.eqb s s') then x else m s'.
+
+Definition example : map_struct := 
+  update (update empty "x" 1) "y" 2.
+
+Inductive aexp := 
+| ANum (n:nat)
+| APlus (a1 a2: aexp)
+| AMult (a1 a2: aexp)
+| AMinus (a1 a2: aexp)
+| AVar (v: string).
+
+Fixpoint aeval (a : aexp) (state: map_struct) : nat :=
+match a with
+| ANum n => n
+| APlus a1 a2 => (aeval a1 state) + (aeval a2 state)
+| AMult a1 a2 => (aeval a1 state) * (aeval a2 state)
+| AMinus a1 a2 => (aeval a1 state) - (aeval a2 state)
+| AVar v => lookup state v
+end.
+
 
 
 
