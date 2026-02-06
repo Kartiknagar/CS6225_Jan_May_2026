@@ -282,6 +282,12 @@ Definition a_prod := pair 5 true.
 
 Compute a_prod.
 
+Notation "( x , y )" := (pair x y).
+
+(** We can also use the [Notation] mechanism to define the standard notation for _product types_ (i.e., the types of pairs): *)
+
+Notation "X * Y" := (prod X Y) : type_scope.
+
 Inductive option (X : Type) :=
 | Some (x : X)
 | None.
