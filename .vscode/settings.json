@@ -1,0 +1,5 @@
+{
+  "dafny.version": "custom",
+  "dafny.cliPath": "/opt/dafny/Dafny.dll",
+  "dafny.dotnetExecutablePath": "/usr/bin/dotnet"
+}

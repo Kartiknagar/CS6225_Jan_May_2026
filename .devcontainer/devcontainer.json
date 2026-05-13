@@ -13,7 +13,10 @@
         "editor.tabSize": 2,
         "files.associations": {
           "*.dfy": "dafny"
-        }
+        },
+        "dafny.version": "custom",
+        "dafny.cliPath": "/opt/dafny/Dafny.dll",
+        "dafny.dotnetExecutablePath": "/usr/bin/dotnet"
       }
     }
   },
